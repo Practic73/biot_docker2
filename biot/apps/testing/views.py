@@ -4,19 +4,23 @@ from django.contrib.auth.decorators import login_required
 from django.db.models import F
 from .models import Quiz, Question, Answer, Choice, Result
 from .utils import paginateObjects
+from django.http import HttpResponse
+
+
+@login_required
+def free_page(request):
+    return HttpResponse("Добавление статьи")
 
 
 @login_required
 def quizzes(request):
-    profile = request.user.profile
+    # profile = request.user.profile
     quizzes = Quiz.objects.all()
     custom_range, quizzes = paginateObjects(request, quizzes, 3)
     context = {
         'quizzes': quizzes,
-        'profile': profile,
-        'custom_range': custom_range
     }
-    return render(request, 'quizzes/quizzes.html', context)
+    return render(request, 'testing/quizzes.html', context)
 
 
 @login_required
@@ -25,7 +29,7 @@ def display_quiz(request, quiz_id):
     question = quiz.question_set.first()
     return redirect(
         reverse(
-            'quizzes:display_question',
+            'testing:display_question',
             kwargs={'quiz_id': quiz_id, 'question_id': question.pk}
         )
     )
@@ -33,7 +37,7 @@ def display_quiz(request, quiz_id):
 
 @login_required
 def display_question(request, quiz_id, question_id):
-    profile = request.user.profile
+    # profile = request.user.profile
     quiz = get_object_or_404(Quiz, pk=quiz_id)
     questions = quiz.question_set.all()
     current_question, next_question = None, None
@@ -46,9 +50,9 @@ def display_question(request, quiz_id, question_id):
         'quiz': quiz,
         'question': current_question,
         'next_question': next_question,
-        'profile': profile
+        # 'profile': profile
     }
-    return render(request, 'quizzes/display.html', context)
+    return render(request, 'testing/display.html', context)
 
 
 @login_required
