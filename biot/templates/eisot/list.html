@@ -1,0 +1,31 @@
+{% extends "base.html" %}
+{% block content %}
+  <h4>Выписка из реестра ЕДИНОЙ ИНФОРМАЦИОННОЙ СИСТЕМЫ ПО ОХРАНЕ ТРУДА</h4>
+  <ul>
+    {% for eisot in object_list %}
+    <hr>
+      <li>
+        <h6> 
+          
+          {% comment %} href="{% url 'eisot:detail' eisot.pk %}" {% endcomment %}
+          Дата: 
+        </h6>
+        <h6>   
+          <b>{{ eisot.prot_date }}</b>
+        </h6>
+        <h6>
+          Название программы: 
+
+        </h6>
+        <h6>
+          <b>
+            {{ eisot.program }}
+          </b>
+        </h6>
+        <a type="button" class="btn btn-secondary btn-sm" href="{% url 'eisot:detail' eisot.pk %}" target="_blank">
+          Открыть выписку
+        </a>
+      </li>
+    {% endfor %}
+  </ul>
+{% endblock content %}

@@ -1,0 +1,51 @@
+{% extends "base_print.html" %}
+{% block content %}
+  <h6>
+    Организация, проводившая обучение по охране труда:
+  </h6>
+  <h5>
+    Частное учреждение–организация дополнительного профессионального образования "Безопасность и охрана труда"
+  </h5>
+  <hr>
+  <h6>
+    ФИО, должность:
+  </h6>
+  <h5> {{ object.author.last_name}} {{ object.author.first_name }} {{ object.author.middle_name }}</h5>
+    <h6>
+      {{ object.position_at_work }}
+    </h6> 
+  <hr>
+  <h6>
+    Организация, направившая работника на обучение по охране труда:
+  </h6>
+  <h5>
+    {{object.employer}} 
+  </h5>
+  <hr>
+  <h6>
+    Программа обучения:
+  </h6>
+  <h5>{{ object.program }}</h5>
+  <hr>
+  <h6>
+    Результат проверки знаний: {{object.result}}
+  </h6>
+  <h6>
+    {% if object.is_sistem %}
+      Тест пройден в системе ЕИСОТ
+    {% endif %}
+  </h6>
+  <hr>
+  <h6> Номер протокола: {{object.prot_number}} </h6>
+  <h6> Дата проверки: {{object.prot_date}} </h6>
+  <hr>
+  <h6> Регистрационный номер в единой общероссийской справочно-информационной системе по охране труда: </h6>
+  <h5>{{ object.reestr_number }}</h5>
+  <hr>
+  <p>
+    {% comment %} <a href="{% url 'notes:edit' slug=note.slug %}">Редактировать</a> {% endcomment %}
+  </p>
+  <p>
+    {% comment %} <a href="{% url 'notes:delete' slug=note.slug %}">Удалить</a> {% endcomment %}
+  </p>
+{% endblock content %}

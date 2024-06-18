@@ -1,0 +1,37 @@
+<header>
+  <nav class="navbar navbar-light" style="background-color: lightskyblue">
+    <div class="container">
+      <a class="navbar-brand" href="{% url 'lk:home' %}">
+        <span class="text-danger"><b style="color: blue">Безопасность и охрана труда</b></span>
+      </a>
+      {% if user.is_authenticated %}
+          {% comment %} <div class="nav-item align-self-center mt-1">
+            <b>пользователь {{ user.last_name }} {{ user.first_name }}</b>
+          </div> {% endcomment %}
+        <div class="spacer flex-grow-1"></div>
+      {% endif %}
+      <ul class="nav nav-pills">
+        {% if user.is_authenticated %}
+          <li class="nav-item">
+            {% comment %} <a class="nav-link" href="{% url 'ot:list' %}">Список протоколов</a> {% endcomment %}
+          </li>
+          <li class="nav-item">
+            {% comment %} <a class="nav-link" href="{% url 'notes:add' %}">Новая заметка</a> {% endcomment %}
+          </li>
+          <li class="nav-item" >
+            <a class="btn btn-outline-primary" href="{% url 'logout' %}" role="button">Выйти</a>
+            {% comment %} <a class="nav-link" href="{% url 'logout' %}">Выйти</a> {% endcomment %}
+          </li>
+        {% else %}
+          <li class="nav-item">
+            <a class="btn btn-outline-primary" href="{% url 'login' %}" role="button">Войти</a>
+            {% comment %} <a class="nav-link" href="{% url 'login' %}">Войти</a> {% endcomment %}
+          </li>
+          <li class="nav-item">
+            {% comment %} <a class="nav-link" href="{% url 'users:signup' %}">Регистрация</a> {% endcomment %}
+          </li>
+        {% endif %}
+      </ul>
+    </div>
+  </nav>
+</header>
