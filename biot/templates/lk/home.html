@@ -7,7 +7,7 @@
   {% comment %} Авторизованный Результаты обучения {% endcomment %}
   
   <div class="row">
-    <div class="col-3">
+    <div class="col-4">
       <div class="card">
         <div class="card-body">
           {% comment %} <h5 class="card-title">Личный кабинет</h5> {% endcomment %}
@@ -16,7 +16,17 @@
         </div>
       </div>
     </div>
-    <div class="col-9">
+    <div class="col-4">
+      <div class="card">
+        <div class="card-body">
+          <h4 class="card-title">Текущее обучение</h4>
+          <h5 class="card-title">Обучение по охране труда</h5>
+          <p class="card-text">Телефон отдела обучения по охране труда +7 (8422) 46-16-44</p>
+          <a class="btn btn-primary" href="{% url 'eisot:list' %}">Выписка из реестра ЕИСОТ</a>
+        </div>
+      </div>
+    </div>
+    <div class="col-4">
       <div class="card">
         <div class="card-body">
           <h4 class="card-title">Пройденной обучение</h4>
