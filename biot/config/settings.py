@@ -46,6 +46,7 @@ INSTALLED_APPS = [
     'users.apps.UsersConfig',
     'apps.eisot.apps.EisotConfig',
     'apps.lk.apps.LkConfig',
+    'apps.testing.apps.TestingConfig',
     'import_export',
     'django_bootstrap5',
 ]
