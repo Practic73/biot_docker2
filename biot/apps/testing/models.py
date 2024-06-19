@@ -5,8 +5,8 @@ User = get_user_model()
 
 
 class Quiz(models.Model):
-    name = models.CharField(max_length=120)
-    published = models.DateTimeField(auto_now_add=True)
+    name = models.CharField('Название теста', max_length=120)
+    published = models.DateTimeField('Опубликован', auto_now_add=True)
 
     def __str__(self):
         return self.name
@@ -22,14 +22,14 @@ class Question(models.Model):
         single = 'single'
         multiple = 'multiple'
 
-    name = models.CharField(max_length=350)
+    name = models.CharField('Название теста', max_length=350)
     qtype = models.CharField(
         max_length=8,
         choices=qtype.choices,
         default=qtype.single
     )
-    quiz = models.ForeignKey(Quiz, on_delete=models.CASCADE)
-    explanation = models.CharField(max_length=550)
+    quiz = models.ForeignKey('Тест', Quiz, on_delete=models.CASCADE)
+    explanation = models.CharField('Пояснение', max_length=550)
 
     def get_answers(self):
         if self.qtype == 'single':
@@ -56,9 +56,9 @@ class Question(models.Model):
 
 
 class Answer(models.Model):
-    question = models.ForeignKey(Question, on_delete=models.CASCADE)
-    name = models.CharField(max_length=200)
-    is_correct = models.BooleanField(default=False)
+    question = models.ForeignKey('Тест', Question, on_delete=models.CASCADE)
+    name = models.CharField('Название', max_length=200)
+    is_correct = models.BooleanField('Верный ответ', default=False)
 
     def __str__(self):
         return self.name
@@ -69,13 +69,21 @@ class Answer(models.Model):
 
 
 class Choice(models.Model):
-    user = models.ForeignKey(User, on_delete=models.CASCADE)
-    question = models.ForeignKey(Question, on_delete=models.CASCADE)
-    answer = models.ForeignKey(Answer, on_delete=models.CASCADE)
+    user = models.ForeignKey('Пользователь', User, on_delete=models.CASCADE)
+    question = models.ForeignKey('Тест', Question, on_delete=models.CASCADE)
+    answer = models.ForeignKey('Ответ', Answer, on_delete=models.CASCADE)
+
+    class Meta:
+        verbose_name = 'Ответ пользователя'
+        verbose_name_plural = 'Ответы пользователя'
 
 
 class Result(models.Model):
-    quiz = models.ForeignKey(Quiz, on_delete=models.CASCADE)
-    user = models.ForeignKey(User, on_delete=models.CASCADE)
-    correct = models.IntegerField(default=0)
-    wrong = models.IntegerField(default=0)
+    quiz = models.ForeignKey('Тест', Quiz, on_delete=models.CASCADE)
+    user = models.ForeignKey('Пользователь', User, on_delete=models.CASCADE)
+    correct = models.IntegerField('Кол-во верных ответов', default=0)
+    wrong = models.IntegerField('Кол-во неверных ответов', default=0)
+
+    class Meta:
+        verbose_name = 'Результат'
+        verbose_name_plural = 'Результаты'
