@@ -23,7 +23,7 @@ class Question(models.Model):
         single = 'single'
         multiple = 'multiple'
 
-    name = models.CharField(verbose_name='Название теста', max_length=350)
+    name = models.CharField(verbose_name='Название', max_length=350)
     qtype = models.CharField(
         max_length=8,
         choices=qtype.choices,
@@ -63,11 +63,14 @@ class Question(models.Model):
 class Answer(models.Model):
     question = models.ForeignKey(
         Question,
-        verbose_name='Тест',
+        verbose_name='Вопрос',
         on_delete=models.CASCADE
     )
     name = models.CharField(verbose_name='Название', max_length=200)
-    is_correct = models.BooleanField(verbose_name='Верный ответ', default=False)
+    is_correct = models.BooleanField(
+        verbose_name='Верный ответ',
+        default=False
+    )
 
     def __str__(self):
         return self.name

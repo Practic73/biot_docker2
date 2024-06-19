@@ -4,6 +4,9 @@
       <a class="navbar-brand" href="{% url 'lk:home' %}">
         <span class="text-danger"><b style="color: blue">Безопасность и охрана труда</b></span>
       </a>
+      <li class="nav-item">
+        <a class="btn btn-primary" href="{% url 'testing:quizzes' %}">Тестирование</a>
+      </li>
       {% if user.is_authenticated %}
           {% comment %} <div class="nav-item align-self-center mt-1">
             <b>пользователь {{ user.last_name }} {{ user.first_name }}</b>

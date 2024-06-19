@@ -4,12 +4,6 @@ from django.contrib.auth.decorators import login_required
 from django.db.models import F
 from .models import Quiz, Question, Answer, Choice, Result
 from .utils import paginateObjects
-from django.http import HttpResponse
-
-
-@login_required
-def free_page(request):
-    return HttpResponse("Добавление статьи")
 
 
 @login_required
@@ -64,7 +58,7 @@ def grade_question(request, quiz_id, question_id):
         if not can_answer:
             return render(
                 request,
-                'quizzes/partial.html',
+                'testing/partial.html',
                 {
                     'question': question,
                     'error_message': 'Вы уже отвечали на этот вопрос.'
@@ -114,11 +108,11 @@ def grade_question(request, quiz_id, question_id):
 
     except BaseException:
         return render(
-            request, 'quizzes/partial.html',
+            request, 'testing/partial.html',
             {'question': question})
     return render(
         request,
-        'quizzes/partial.html',
+        'testing/partial.html',
         {
             'is_correct': is_correct,
             'correct_answer': correct_answer,
@@ -129,7 +123,7 @@ def grade_question(request, quiz_id, question_id):
 
 @login_required
 def quiz_results(request, quiz_id):
-    profile = request.user.profile
+    # profile = request.user.profile
     quiz = get_object_or_404(Quiz, pk=quiz_id)
     questions = quiz.question_set.all()
     results = Result.objects.filter(
@@ -140,7 +134,7 @@ def quiz_results(request, quiz_id):
     wrong = [i['wrong'] for i in results][0]
     context = {
         'quiz': quiz,
-        'profile': profile,
+        # 'profile': profile,
         'correct': correct,
         'wrong': wrong,
         'number': len(questions),
@@ -148,5 +142,5 @@ def quiz_results(request, quiz_id):
     }
     return render(
         request,
-        'quizzes/results.html', context
+        'testing/results.html', context
     )
