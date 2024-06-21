@@ -105,7 +105,6 @@ def grade_question(request, quiz_id, question_id):
                 else:
                     result.wrong = F('wrong') + 1
                 result.save()
-
     except BaseException:
         return render(
             request, 'testing/partial.html',
