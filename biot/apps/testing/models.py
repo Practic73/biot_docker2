@@ -5,7 +5,12 @@ User = get_user_model()
 
 
 class Quiz(models.Model):
-    name = models.CharField(verbose_name='Название теста', max_length=120)
+    name = models.CharField(
+        verbose_name='Название теста',
+        max_length=120,
+        unique=True,
+        primary_key=True,
+    )
     published = models.DateTimeField(verbose_name='Опубликован',
                                      auto_now_add=True)
 
@@ -34,7 +39,10 @@ class Question(models.Model):
         verbose_name='Тест',
         on_delete=models.CASCADE
     )
-    explanation = models.CharField(verbose_name='Пояснение', max_length=550)
+    explanation = models.CharField(
+        verbose_name='Пояснение',
+        max_length=550,
+        default=' - ')
 
     def get_answers(self):
         if self.qtype == 'single':
