@@ -1,12 +1,25 @@
-from django.contrib.auth.hashers import make_password
 from django.contrib.auth.models import AbstractUser
+from django.contrib.auth.hashers import make_password
 from django.db import models
-
 from .validators import real_age
+
+ANONIM = 'anonim'
+USER = 'user'
+MODERATOR = 'moderator'
+ADMIN = 'admin'
+TEACHER = 'teacher'
+
+CHOICES_ROLE = (
+    (ANONIM, 'аноним'),
+    (USER, 'пользователь'),
+    (MODERATOR, 'модератор'),
+    (ADMIN, 'администратор'),
+    (TEACHER, 'преподователь')
+)
 
 
 class CustomUser(AbstractUser):
-    # username = models.CharField('Логин', max_length=14, unique=True)
+    #username = models.CharField('Логин', max_length=14, unique=True)
     middle_name = models.CharField('Отчество', max_length=50, blank=True)
     snils = models.CharField('СНИЛС', max_length=14, unique=True, blank=True)
     is_consent = models.BooleanField(
@@ -23,14 +36,18 @@ class CustomUser(AbstractUser):
     )
     birthday = models.DateField(
         'Дата рождения',
-        default='1940-01-01',
+        #default='1940-01-01',
         blank=True,
-        validators=(real_age,)
+        validators=(real_age,),
+        null=True
     )
     address = models.CharField('Адрес', max_length=200, blank=True)
+    role = models.CharField('Роль', max_length=20,
+                            choices=CHOICES_ROLE,
+                            default=ANONIM)
 
     # USERNAME_FIELD = 'snils'
-    REQUIRED_FIELDS = ['snils']
+    # REQUIRED_FIELDS = ['username']
 
     def save(self, *args, **kwargs):
         """При импорте нет пароля создается из снилс"""
@@ -50,7 +67,7 @@ class CustomUser(AbstractUser):
         full_name = self.last_name + ' ' + self.first_name
         return full_name
 
-    # Проверка на уникальность.
+    #Проверка на уникальность.
     # class Meta:
     #     constraints = (
     #         models.UniqueConstraint(
