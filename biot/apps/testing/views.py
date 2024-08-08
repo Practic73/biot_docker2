@@ -18,21 +18,21 @@ def quizzes(request):
 
 
 @login_required
-def display_quiz(request, quiz_id):
-    quiz = get_object_or_404(Quiz, pk=quiz_id)
+def display_quiz(request, quiz_name):
+    quiz = get_object_or_404(Quiz, pk=quiz_name)
     question = quiz.question_set.first()
     return redirect(
         reverse(
             'testing:display_question',
-            kwargs={'quiz_id': quiz_id, 'question_id': question.pk}
+            kwargs={'quiz_name': quiz_name, 'question_id': question.pk}
         )
     )
 
 
 @login_required
-def display_question(request, quiz_id, question_id):
+def display_question(request, quiz_name, question_id):
     # profile = request.user.profile
-    quiz = get_object_or_404(Quiz, pk=quiz_id)
+    quiz = get_object_or_404(Quiz, pk=quiz_name)
     questions = quiz.question_set.all()
     current_question, next_question = None, None
     for ind, question in enumerate(questions):
@@ -50,9 +50,9 @@ def display_question(request, quiz_id, question_id):
 
 
 @login_required
-def grade_question(request, quiz_id, question_id):
+def grade_question(request, quiz_name, question_id):
     question = get_object_or_404(Question, pk=question_id)
-    quiz = get_object_or_404(Quiz, pk=quiz_id)
+    quiz = get_object_or_404(Quiz, pk=quiz_name)
     can_answer = question.user_can_answer(request.user)
     try:
         if not can_answer:
@@ -121,9 +121,9 @@ def grade_question(request, quiz_id, question_id):
 
 
 @login_required
-def quiz_results(request, quiz_id):
+def quiz_results(request, quiz_name):
     # profile = request.user.profile
-    quiz = get_object_or_404(Quiz, pk=quiz_id)
+    quiz = get_object_or_404(Quiz, pk=quiz_name)
     questions = quiz.question_set.all()
     results = Result.objects.filter(
         user=request.user,

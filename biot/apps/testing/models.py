@@ -28,7 +28,11 @@ class Question(models.Model):
         single = 'single'
         multiple = 'multiple'
 
-    name = models.CharField(verbose_name='Название', max_length=350)
+    name = models.CharField(
+        verbose_name='Название',
+        max_length=350,
+        unique=True,
+    )
     qtype = models.CharField(
         max_length=8,
         choices=qtype.choices,

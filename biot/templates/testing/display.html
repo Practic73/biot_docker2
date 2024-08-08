@@ -10,7 +10,7 @@
 </div>
 <div>
     <form id="question-form"
-            action="{% url 'testing:grade_question' quiz.id question.id %}"
+            action="{% url 'testing:grade_question' quiz.name question.id %}"
             method="post">
         {% csrf_token %}
         {% if question.qtype == 'single' %}
@@ -49,13 +49,13 @@
 <div class="my-4">
     {% if next_question %}
         <div class="mt-5">
-            <a href="{% url 'testing:display_question' quiz.id next_question.id %}"
+            <a href="{% url 'testing:display_question' quiz.name next_question.id %}"
                 class="btn btn-primary btn-md rounded-pill"><i class="fa fa-arrow-circle-right"></i> Следующий вопрос</a>
         </div>
     {% else %}
         <div class="text-200">
             Это последний вопрос теста. После ответа нажмите кнопку
-            <a href="{% url 'testing:quiz_results' quiz.id %}"
+            <a href="{% url 'testing:quiz_results' quiz.name %}"
                 class="btn btn-primary rounded-pill btn-md">Посмотреть результаты</a>
         </div>
     {% endif %}
