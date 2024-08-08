@@ -13,6 +13,7 @@ import os
 from pathlib import Path
 
 from django.urls.base import reverse_lazy
+from import_export.formats.base_formats import CSV, XLSX, HTML
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 
@@ -23,7 +24,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = 'django-insecure-kt-w!@w&071s!3i&*iezsp0n88lq390wnc27gka35y*p2k77_6'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = False
+DEBUG = True
 
 # ALLOWED_HOSTS = []
 
@@ -46,6 +47,7 @@ INSTALLED_APPS = [
     'users.apps.UsersConfig',
     'apps.eisot.apps.EisotConfig',
     'apps.lk.apps.LkConfig',
+    'apps.testing.apps.TestingConfig',
     'import_export',
     'django_bootstrap5',
 ]
@@ -84,16 +86,24 @@ WSGI_APPLICATION = 'config.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/4.2/ref/settings/#databases
 
-DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.postgresql',
-        'NAME': os.getenv('POSTGRES_DB', 'django'),
-        'USER': os.getenv('POSTGRES_USER', 'django'),
-        'PASSWORD': os.getenv('POSTGRES_PASSWORD', ''),
-        'HOST': os.getenv('DB_HOST', ''),
-        'PORT': os.getenv('DB_PORT', 5432),
+if DEBUG:
+    DATABASES = {
+        'default': {
+            'ENGINE': 'django.db.backends.sqlite3',
+            'NAME': BASE_DIR / 'db.sqlite3',
+        }
     }
-}
+else:
+    DATABASES = {
+        'default': {
+            'ENGINE': 'django.db.backends.postgresql',
+            'NAME': os.getenv('POSTGRES_DB', 'django'),
+            'USER': os.getenv('POSTGRES_USER', 'django'),
+            'PASSWORD': os.getenv('POSTGRES_PASSWORD', ''),
+            'HOST': os.getenv('DB_HOST', ''),
+            'PORT': os.getenv('DB_PORT', 5432),
+        }
+    }
 
 
 # Password validation
@@ -146,3 +156,5 @@ AUTH_USER_MODEL = 'users.CustomUser'
 LOGIN_URL = reverse_lazy('login')
 
 LOGIN_REDIRECT_URL = reverse_lazy('lk:home')
+
+IMPORT_FORMATS = [CSV, XLSX, HTML]
