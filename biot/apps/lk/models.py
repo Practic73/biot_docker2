@@ -6,14 +6,14 @@ STUDENT = 'student'
 MASTER = 'master'
 
 CHOICES_PERSON = (
-    (CANDIDATE, 'кандидат'),
-    (STUDENT, 'студент'),
-    (MASTER, 'выпускник'),
+    (CANDIDATE, 'Кандидат'),
+    (STUDENT, 'Обучающийся'),
+    (MASTER, 'Выпускник'),
     )
 
 
 class Group(models.Model):
-    grup_number = models.CharField(
+    group_number = models.CharField(
         'Номер группы',
         max_length=25,
         help_text='Номер группы',
@@ -27,41 +27,44 @@ class Group(models.Model):
     )
     start_date = models.DateField(
         'Дата начала обучения',
-        #default='1900-01-01',
-        #blank=True,
         null=True
     )
 
     end_date = models.DateField(
         'Дата окончания обучения',
-        #default='1900-01-01',
         blank=True,
         null=True
     )
-    
+
     class Meta:
         verbose_name = 'группа'
         verbose_name_plural = 'Группы обучения'
 
     def __str__(self):
-        return self.grup_number
+        return self.group_number
 
 
 class Person(models.Model):
-    # person = models.ForeignKey(
-    #     settings.AUTH_USER_MODEL,
-    #     on_delete=models.CASCADE,
-    #     related_name='обучающийся',
-    #     verbose_name='Обучающийся',
-    # )
+    person = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.PROTECT,
+        related_name='обучающийся',
+        verbose_name='Обучающийся',
+    )
     uid = models.CharField(
-        'UID', max_length=30,
+        'UID', max_length=50,
         help_text='UID обучающегося'
     )
-    groups = models.ManyToManyField(Group,
-                                    related_name='groups',
-                                    verbose_name='Номер группы')
-    
+    group = models.ForeignKey(Group,
+                              on_delete=models.PROTECT,
+                              related_name='group',
+                              verbose_name='Текущая группа')
+
+    previous_groups = models.CharField(
+        'Предыдущие группы', max_length=30,
+        blank=True,
+        help_text='Предыдущие группы'
+    )
 
     status = models.CharField(
         'Статус',
@@ -70,14 +73,25 @@ class Person(models.Model):
         default=CANDIDATE,
         help_text='Статус обучающегося'
     )
-    start_date = models.CharField(
-        'Дата начала обучения', blank=True, max_length=15,
-        help_text='Дата начала обучения'
+
+    start_date_person = models.DateField(
+        'Дата начала обучения',
+        null=True
     )
-    end_date = models.CharField(
-        'Дата окончания обучения', blank=True, max_length=15,
-        help_text='Дата окончания обучения'
+
+    end_date_person = models.DateField(
+        'Дата окончания обучения',
+        blank=True,
+        null=True
     )
+
+    def save(self, *args, **kwargs):
+        """Дата начала обучения"""
+        if self.start_date_person and not self.end_date_person:
+            self.status = STUDENT
+        elif self.start_date_person and self.end_date_person:
+            self.status = MASTER
+        super().save(*args, **kwargs)
 
     class Meta:
         verbose_name = 'обучающийся'

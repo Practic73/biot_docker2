@@ -1,59 +1,36 @@
-#from readline import redisplay
 from django.contrib import admin
-#from datetime import date
 
-from import_export import fields, resources
+from import_export import resources
 from import_export.admin import ImportExportModelAdmin
 from import_export.fields import Field
-from import_export.widgets import ForeignKeyWidget, ManyToManyWidget
+from import_export.widgets import ForeignKeyWidget
 
 from users.models import CustomUser
+from users.import_fields import MyUserResourceMixin
 from .models import Group, Person
 
 
-class GroupResource(resources.ModelResource):
+class GroupMixin():
+    group_number = Field(attribute='group_number',
+                         column_name='Номер группы')
 
-    grup_number = Field(attribute='grup_number',
-                        column_name='Номер группы')
-    
     program_training = Field(attribute='program_training',
                              column_name='Программа обучения')
 
-    # start_date = Field(attribute='start_date',
-    #                    column_name='Дата начала строка')
     start_date = Field(attribute='start_date',
                        column_name='Дата начала обучения')
 
     end_date = Field(attribute='end_date',
                      column_name='Дата окончания обучения')
-    
 
-                        #widget=DateWidget(format='%Y-%m-%d')
 
-    # value = self.widget.clean(value, row=data, **kwargs)
-    # def after_import_row(self, row, row_result, **kwargs):
-    #     self.start_date2 = date.fromisoformat(self.start_date)
-        # if getattr(row_result.original, "start_date2") is None \
-        #     and 
-        # if getattr(row_result.instance, "start_date2") is not None:
-        #     self.start_date2 = date.today()
-          # import value is different from stored value.
-          # exec custom workflow..
+class GroupResource(resources.ModelResource, GroupMixin):
 
     class Meta:
         model = Group
-        # store_instance = True
-        import_id_fields = ('grup_number',)
+        import_id_fields = ('group_number',)
         skip_unchanged = True
         report_skipped = True
-        # widgets = {
-        #     'start_date2': {'format': '%Y.%m.%d'},
-        # }
-        # exclude = ('program_training',
-        #            'start_date2',
-        #            'end_date',
-        #            #'start_date2',
-        # )
 
         # export_order = (
         #     'grup_number',
@@ -66,85 +43,91 @@ class GroupResource(resources.ModelResource):
 
 class GroupAdmin(ImportExportModelAdmin):
     resource_classes = [GroupResource]
-    search_fields = ('grup_number',)
+    search_fields = ('group_number',)
     list_display = (
-            'grup_number',
+            'group_number',
             'program_training',
             'start_date',
             'end_date',
     )
-    #filter_horizontal = ('groups',)
     fields = [
-            'grup_number',
+            'group_number',
             'program_training',
             'start_date',
             'end_date',
     ]
 
 
-class PersonResource(resources.ModelResource):
+class PersonResource(MyUserResourceMixin, GroupMixin):
 
-    # person = fields.Field(
-    #     column_name='СНИЛС',
-    #     attribute='person',
-    #     widget=ForeignKeyWidget(CustomUser, field='snils'))
-    
+    person = Field(
+        column_name='СНИЛС',
+        attribute='person',
+        widget=ForeignKeyWidget(CustomUser, field='snils'))
+
     uid = Field(attribute='uid',
                 column_name='UID студента')
-    
-    groups = fields.Field(
+
+    group = Field(
         column_name='Номер группы',
-        attribute='groups',
-        widget=ManyToManyWidget(Group, separator=',', field='grup_number')
-    )
-
-    program_training = Field(attribute='program_training',
-                             column_name='Программа обучения')
-
-    start_date = Field(attribute='start_date',
-                       column_name='Дата начала обучения')
-
-    end_date = Field(attribute='end_date',
-                     column_name='Дата окончания обучения')
+        attribute='group',
+        widget=ForeignKeyWidget(Group, field='group_number'))
+    
+    start_date_person = Field(attribute='start_date_person',
+                              column_name='Дата начала обучения')   
 
     def before_import_row(self, row, **kwargs):
-        groups = row["Номер группы"]
+        group = row["Номер группы"]
         program_training = row['Программа обучения']
         start_date = row['Дата начала обучения']
         end_date = row['Дата окончания обучения']
-        #uid = row["UID студента"]
         Group.objects.get_or_create(
-                                grup_number=groups,
+                                group_number=group,
                                 defaults={
-                                    "grup_number": groups,
+                                    'group_number': group,
                                     'program_training': program_training,
                                     'start_date': start_date,
                                     'end_date': end_date,
                                     }
         )
-        #p=Person.objects.get(uid=uid)
 
-    # def before_save_instance(self, instance, using_transactions, dry_run):
-    #     # instance.is_verification = True
-    #     instance.groups.add('111111')
+        first_name = row['Имя']
+        last_name = row['Фамилия']
+        middle_name = row['Отчество']
+        snils = row['СНИЛС']
+        CustomUser.objects.get_or_create(
+                                snils=snils,
+                                defaults={
+                                    "snils": snils,
+                                    'first_name': first_name,
+                                    'last_name': last_name,
+                                    'middle_name': middle_name,
+                                    'is_verification': True,
+                                    }
+        )
 
-    # def after_save_instance(self, instance, using_transactions, dry_run):
-    #     instance.groups.clear()
+    def before_save_instance(self, instance, using_transactions, dry_run):
+        try:
+            person = Person.objects.get(uid=instance.uid)
+            if person and person.start_date_person:
+                instance.start_date_person = person.start_date_person
+                if instance.group != person.group.group_number:
+                    if not person.previous_groups:
+                        instance.previous_groups = person.group.group_number
+                    else:
+                        instance.previous_groups = (
+                            f'{person.previous_groups},'
+                            f'{person.group.group_number}'
+                        )
 
-    def save_m2m(self, obj, row, using_transactions, dry_run):
-        uid = row["UID студента"]
-        group = row["Номер группы"]
-        fk_group = Group.objects.get(grup_number=group)
-        peron_groups = Person.objects.get(uid=uid).groups
-        peron_groups.add(fk_group)
+        except Person.DoesNotExist:
+            pass
 
-        
     class Meta:
         model = Person
         import_id_fields = ('uid',)
         skip_unchanged = True
         report_skipped = True
-
 
         # export_order = (
         #     'person',
@@ -156,37 +139,25 @@ class PersonResource(resources.ModelResource):
 class PersonAdmin(ImportExportModelAdmin):
     resource_classes = [PersonResource]
 
-    def get_groups(self, groups):
-        # list(Group.objects.filter(groups=groups))
-        qs = Group.objects.filter(groups=groups).last()
-        return qs
-    get_groups.short_description = "Группа"
-
     list_display = [
 
-        #'person',
+        'person',
         'uid',
         'status',
-        'start_date',
-        'end_date',
-        'get_groups',
-        #'groups'
+        'start_date_person',
+        'end_date_person',
+        'group',
+        'previous_groups',
     ]
-    #list_select_related = ('groups',)
-    #filter_horizontal = ('groups',)
+
     fields = [
-        #'person',
+        'person',
         'uid',
-        'groups',
+        'previous_groups',
+        'group',
+        ('start_date_person', 'end_date_person'),
     ]
-
-    #raw_id_fields = ('groups',)
-    #filter_horizontal = ('groups',)
-    autocomplete_fields = ('groups',)
-    #list_select_related = ['groups', ]
-
-    
-    # @redisplay(description='Группы')
+    search_fields = ('person__last_name', 'group__group_number',)
 
 
 admin.site.register(Group, GroupAdmin)
